@@ -1,93 +1,200 @@
 # ubg_data_management
 
+## Introduction
+
+Data management is hard.
+
+Data management in small (work) groups is even harder, especially if data is
+very inhomogeneous, often incomplete, and data (format) standards are missing
+in a given field of research.
+
+**Goal: This repository presents work of the Geophysics Section of the
+University of Bonn to develop a set of guidelines, meta-data entries, and
+Python helper scripts for a base research data management.**
+
+### Problems with data management (DM)
+
+* DM is tedious, and often does not lead to direct benefits for the researcher
+* Often, guidelines and standards are missing for data management on the lowest
+  level of research, i.e., at the level of data creation
+* DM is resource intensive. Commonly, metadata is entered and stored in
+  database, which need to be set up and maintained, including front end
+software for data input and validation
+* In research environments, there often is a frequent staff turn-over,
+  complicating long-term maintenance issues
+
+### Our approach
+
+We aim to alleviate the issue of data management at the lowest level by
+
+* defining a simple directory structure to store heterogeneous research data
+  (the **data tree**)
+* defining a simple set of metadata entries that are stored in human- and
+  machine-readable .ini format within the directory structure
+* provide a set of python libraries and helper scripts for simple DM tasks,
+  such as adding new data to a data tree, or listing all available measurements
+
+### Onion-shell principle
+
+We recognize that DM requirements vary across institutions, even between
+individual researchers.
+
+We envision our DM practices the smallest shell of a DM stack, as a basic fall
+back that requires no special hardware or expert skills.
+
+If resources are available, the metadata files stored in the data tree can be
+scanned and imported in a database, and built upon to create sophisticated DM
+practices.
+
+The data tree can also be used for easy export and subsequent import into
+larger-scale DM operations, such as often operated by research projects or
+larger research institutions.
+
+### Required hard- and software
+
+* A directory tree can be created by hand, if required. Therefore, only a
+  computer and a file browser is required
+* In order to use the provided Python scripts and libraries, a working Python
+  interpreter is required, as well as the following packages:
+
+  * numpy
+  * prompt_toolkit
+  * pandas
+
+## The data tree
+
+A data tree consists of pre-defined levels, some of which are optional. Each
+directory level is uniquely identified by a two-character prefix, separated by
+the level name by an underscore. Some levels are restricted to a certain set of
+possible level names (i.e., the **target** level only allows the values *field*
+or *laboratory*).
+
+  The following image visualizes the directory structure:
+
+  ![dirstruc.jpg](dirstruc.jpg)
+
+  An example a directory tree (with only one measurement) is:
+
+  ```
+  └── dr_data
+    └── tc_hydrogeophysics
+        └── t_field
+            └── s_Spiekeroog
+                └── a_North
+                    └── md_ERT
+                        └── p_p_01_nor
+                            └── m_01_p1_nor
+                                ├── metadata.ini
+                                └── RawData
+                                    └── data.dat
+  ```
+
+## The metadata entries
+
+    [general]
+    label = 20240610_ert_p1_nor
+    person_responsible = Maximilian Weigand
+    person_email = mw@domain.com
+    theme_complex = Hydrogeophysics
+    datetime_start = 20240610_1200
+    description = A small test measurement
+        Note that some entries are multi-line capable!
+    survey_type = field
+    method = ERT
+    completed = yes
+
+    [field]
+    site = Spiekeroog
+    area = north
+    profile = p_01
+
+    [geoelectrics]
+    profile_direction = normal
 
 
-## Getting started
+## The Python helper libraries and scripts
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+### Installation
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+    pip install git+https://gitlab.uni-bonn.de/grp_unibonn-geophysics/ubg_data_management.git
+    # in the future we will also upload package to Pypi
+    # pip install ubg_data_management
 
-## Add your files
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+### Adding new data
 
-```
-cd existing_repo
-git remote add origin https://gitlab.uni-bonn.de/mweigand/ubg_data_management.git
-git branch -M main
-git push -uf origin main
-```
+The command **dm_add** can be used to easily add data to an existing, or new,
+data tree. The command will display information in the terminal (command line)
+and ask for input.
 
-## Integrate with your tools
+    Example:
 
-- [ ] [Set up project integrations](https://gitlab.uni-bonn.de/mweigand/ubg_data_management/-/settings/integrations)
+        $ dm_add -t dr_data -i walkthrough.qmd
+        --------------------------------------------------------------------------------
+        Input: ['walkthrough.qmd']
+        Output Data Tree: dr_data
+        --------------------------------------------------------------------------------
 
-## Collaborate with your team
+        Filename with highest priority /home/mweigand/.data_toolbox/ub_geoph_dm.cfg
+        --------------------------------------------------------------------------------
+                Please enter required metadata entries:
+        --------------------------------------------------------------------------------
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+        --------------------------------------------------------------------------------
+        Delete last 100 characters: STRG - a
+        Ignore current input and go backwards: STRG - u
+        Commit current input and stop data input STRG - z
+        There are autocomplete values available (Press TAB).
+        --------------------------------------------------------------------------------
+        Field or laboratory measurements? Allowed values: field, laboratory
+        Enter value for general.survey_type: field
 
-## Test and Deploy
+### Checking an existing directory tree
 
-Use the built-in continuous integration in GitLab.
+    $ dm_check_dirtree
+    Working in directory /home/mweigand/test/dr_data
+    ################################################################################
+    Checking directory structure of directory: /home/mweigand/test/dr_data
+    ................................................................................
+    Directory dr_data
+        Directory dr_data/tc_Hydrogeophysics
+            Directory dr_data/tc_Hydrogeophysics/t_field
+                Directory dr_data/tc_Hydrogeophysics/t_field/s_Spiekeroog
+                    Directory dr_data/tc_Hydrogeophysics/t_field/s_Spiekeroog/a_HausAmMeer
+                        Directory dr_data/tc_Hydrogeophysics/t_field/s_Spiekeroog/a_HausAmMeer/md_TEMP
+                            Directory dr_data/tc_Hydrogeophysics/t_field/s_Spiekeroog/a_HausAmMeer/md_TEMP/p_profile_02
+                                Directory dr_data/tc_Hydrogeophysics/t_field/s_Spiekeroog/a_HausAmMeer/md_TEMP/p_profile_02/m_2025.2asd
+                                    Check empty directories:  ok
+                                    Check for required metadata.ini file:  ok
+                                    Check for required metadata entries
+                                        Required entry [geoelectrics]-profile_direction is missing
+                                        Required entry [geoelectrics]-electrode_positions is missing
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+                                    Check metadata contents
+                                        OK: [general][datetime_start]
 
-***
+                    Directory dr_data/tc_Hydrogeophysics/t_field/s_Spiekeroog/a_north
+                        Directory dr_data/tc_Hydrogeophysics/t_field/s_Spiekeroog/a_north/md_ERT
+                            Directory dr_data/tc_Hydrogeophysics/t_field/s_Spiekeroog/a_north/md_ERT/p_p_01
+                                Directory dr_data/tc_Hydrogeophysics/t_field/s_Spiekeroog/a_north/md_ERT/p_p_01/m_very_important
+                                    Check empty directories:  ok
+                                    Check for required metadata.ini file:  ok
+                                    Check for required metadata entries
+                                        Required entry [general]-description is empty
+                                        Required entry [geoelectrics]-electrode_positions is empty
 
-# Editing this README
+                                    Check metadata contents
+                                        FAIL: [general][datetime_start] is not a valid date format!
+    ################################################################################
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+# Questions
 
-## Suggestions for a good README
+* How do I merge two data trees?
+ TODO
+* Isn't adding all the metadata of a given site/location highly repetitive?
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+  Yes, but it also keeps things simple. The metadata definition, and the Python library, already support metadata added to different levels of a data tree. This way, common metadata entries can be propagated downwards.
 
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+  This approach, however, introduces quite some complications:
+    * How to deal with inconsistent data (must be dealt with when integrating existing measurement directories into a data tree)?
+    * The tools to add new data files (e.g., **dm_add**) must be aware of this existing metadata to automatically include it (and point out inconstencies)

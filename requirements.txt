@@ -1,0 +1,5 @@
+numpy
+pandas
+prompt-toolkit
+ipython
+flake8

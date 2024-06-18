@@ -191,6 +191,18 @@ and ask for input.
                                         FAIL: [general][datetime_start] is not a valid date format!
     ################################################################################
 
+# Installation
+
+The easiest way to install the data toolbox is using the Pypi package:
+
+	pip install ubg_data_toolbox
+
+You can also clone this directory and install from there:
+
+	git clone https://github.com/geophysics-ubonn/ubg_data_toolbox
+	cd ubg_data_toolbox
+	pip install .
+
 # Questions
 
 * How do I merge two data trees?

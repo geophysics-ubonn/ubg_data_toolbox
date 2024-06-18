@@ -77,18 +77,18 @@ repository:
 The following commands can be run in all standard terminal. We recommend to use
 a Jupyter Terminal.
 
-Note that the Python package \textsl{ubg_data_toolbox} must be installed. This
+Note that the Python package \textsl{ubg\_data\_toolbox} must be installed. This
 can be done by executing:
 
 \begin{minted}{bash}
-		pip install ubg_data_toolbox
+pip install ubg_data_toolbox
 \end{minted}
 
 You can also install the toolbox from within a Jupyter Notebook cell by
 executing:
 
 \begin{minted}{bash}
-		!pip install ubg_data_toolbox
+!pip install ubg_data_toolbox
 \end{minted}
 
 % \begin{itemize}
@@ -147,18 +147,83 @@ options:
 \subsection{Procedures}
 
 \begin{itemize}
-    \item First fix/sort the directory structures
-    \item Create the \textbf{m\_*} in the correct place BEFORE creating the
-        \textsl{metadata.ini} file.
-    \item THEN, use \textbf{dm\_init\_metadata} to initiate the
-        \textsl{metadata.ini} file
+	\item In absence of a data tree, use \textbf{dm\_add} to add measurements
+		to a newly created directory structure
+	\item For additional measurements, it usually is also convenient to keep on
+		using \textbf{dm\_add}. However, you can also use the following procedure:
+		\begin{itemize}
+			\item Create the \textbf{m\_*} in the correct place BEFORE creating the
+				\textsl{metadata.ini} file.
+			\item THEN, use \textbf{dm\_init\_metadata} to initiate the
+				\textsl{metadata.ini} file from the directory structure. Note
+				that there may be missing, but required, metadata entries that
+				can not be extracted automatically from the directory tree.
+		\end{itemize}
+	\item Check the directory tree with \textbf{dm\_check\_dirtree} and fix any
+		reported issues
 \end{itemize}
 
 \section{Directory Structure}
+
+The directory structure is defined as follows. Each directory must start with a
+prefix, followed by an underscore, followed by a name/value. For example, the
+top directory could be called: \textbf{dr\_datatree}.
+
+Note that some levels are optional (indicated by additional arrows in the
+figure below).
+
 \includegraphics[width=\textwidth]{dirtree.png}
+
+An example a directory tree (with only one measurement) is:
+
+\begin{minted}{bash}
+  └── dr_datatree/
+    └── tc_hydrogeophysics
+        └── t_field
+            └── s_Spiekeroog
+                └── a_North
+                    └── md_ERT
+                        └── p_p_01_nor
+                            └── m_01_p1_nor
+                                ├── metadata.ini
+                                └── RawData
+                                    └── data.dat
+\end{minted}
 
 \clearpage
 \section{Metadata}
+
+Metadata is collected in \textsl{metadata.ini} files that reside in the
+individual measurement (m\_)-directories.
+
+An example \textsl{metadata.ini} file could look like:
+
+\begin{minted}{ini}
+[general]
+label = 20240610_ert_p1_nor
+person_responsible = Maximilian Weigand
+person_email = mw@domain.com
+theme_complex = Hydrogeophysics
+datetime_start = 20240610_1200
+description = A small test measurement
+    Note that some entries are multi-line capable!
+survey_type = field
+method = ERT
+completed = yes
+
+[field]
+site = Spiekeroog
+area = north
+profile = p_01
+
+[geoelectrics]
+profile_direction = normal
+\end{minted}
+
+You can add arbitrary \textsl{[sections]} and key=value pairs. However, the
+following set of metadata entries is pre-defined, with some of the
+\textbf{required}:
+\newpage
 {\footnotesize
 \input{metadata_descriptions}
 }

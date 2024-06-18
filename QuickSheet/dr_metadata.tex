@@ -1,0 +1,165 @@
+%! TEX program = xelatex
+% \documentclass[fontsize=12,draft]{scrartcl}
+\documentclass[fontsize=12]{scrartcl}
+
+\usepackage[sfdefault]{FiraSans}
+
+\usepackage{setspace}
+\onehalfspacing
+
+\usepackage{lineno}
+\linenumbers
+
+\usepackage{pgfgantt}
+
+\usepackage[skip=0pt]{parskip}
+% \usepackage[libertine]{newtxmath}
+% \usepackage[no-math]{fontspec}
+% \usepackage{xltxtra}
+
+\usepackage{polyglossia}
+\setdefaultlanguage[variant=american]{english}
+\setotherlanguage[babelshorthands]{german}
+
+\usepackage{multirow}
+
+
+\usepackage{placeins}
+
+\usepackage{longtable}
+
+
+\usepackage{url}
+
+\usepackage[xetex,left=1.0cm,right=1cm,top=1.5cm,bottom=2cm]{geometry}
+
+\usepackage{fixme}
+\fxsetup{
+    status=draft,
+    author=,
+    %layout=inline,
+    theme=color,
+    %layout=color,
+    %targetlayout=color
+}
+
+\usepackage{graphicx}
+
+\usepackage{amsmath}
+\usepackage{natbib}
+\usepackage{lineno,hyperref}
+\usepackage{nicefrac}
+\usepackage{soul}
+\usepackage[colorinlistoftodos]{todonotes}
+\newcommand{\hlfix}[2]{\texthl{#1}\todo{#2}}
+\newcommand{\td}[1]{\todo[inline]{#1}}
+
+\usepackage{xcolor}
+\newcommand{\rr}[0]{{\color{red}{REVISE}}}
+
+\usepackage{longtable}
+
+\usepackage{fontawesome}
+
+\usepackage{minted}
+
+\begin{document}
+\section{Summary}
+
+More information, and introductions to the concepts of the \textbf{data tree}
+and corresponding \textbf{metadata} can be found at the project source
+repository:
+
+\url{https://github.com/geophysics-ubonn/ubg_data_toolbox}
+
+\subsection{The DataTools in the Jupyter terminal}
+
+The following commands can be run in all standard terminal. We recommend to use
+a Jupyter Terminal.
+
+Note that the Python package \textsl{ubg_data_toolbox} must be installed. This
+can be done by executing:
+
+\begin{minted}{bash}
+		pip install ubg_data_toolbox
+\end{minted}
+
+You can also install the toolbox from within a Jupyter Notebook cell by
+executing:
+
+\begin{minted}{bash}
+		!pip install ubg_data_toolbox
+\end{minted}
+
+% \begin{itemize}
+%     \item On first login into the Jupyer hub:
+%         \begin{minted}{bash}
+%                 conda init
+%         \end{minted}
+%     \item For each terminal session:
+%         \begin{minted}{bash}
+%                 conda activate code-data-tools
+%         \end{minted}
+% \end{itemize}
+
+\subsection{The Commands}
+
+The following commands are used to manage \textbf{data trees}:
+
+\begin{itemize}
+    \item Check a single measurement (\textbf{m\_*}) directory:
+        \begin{minted}{bash}
+                dm_m_check_dir
+        \end{minted}
+    \item Check a complete data directory (\textbf{dm\_*}) directory:
+        \begin{minted}{bash}
+                dm_check_dirtree
+        \end{minted}
+	\item Add data (file(s) or directory) to a data tree, interactively:
+        \begin{minted}{bash}
+            dm_add
+        \end{minted}
+    \item Initialise a new \textsl{metadata.ini} based on the directory structure:
+        \begin{minted}{bash}
+            dm_init_metadata
+        \end{minted}
+    \item List all measurement directories
+        \begin{minted}{bash}
+            dm_list_measurements
+        \end{minted}
+\end{itemize}
+
+Usually command line options can be queried by appending "-h" to the command.
+Example:
+\begin{minted}{bash}
+$ dm_add -h
+usage: dm_add [-h] -t TREE -i INPUT [INPUT ...]
+
+Add one measurement to a given data directory structure
+
+options:
+  -h, --help            show this help message and exit
+  -t TREE, --tree TREE  Path of data tree (should start with: dr_
+  -i INPUT [INPUT ...], --input INPUT [INPUT ...]
+                        Path to measurement (data/directory/directory tree)
+\end{minted}
+
+\subsection{Procedures}
+
+\begin{itemize}
+    \item First fix/sort the directory structures
+    \item Create the \textbf{m\_*} in the correct place BEFORE creating the
+        \textsl{metadata.ini} file.
+    \item THEN, use \textbf{dm\_init\_metadata} to initiate the
+        \textsl{metadata.ini} file
+\end{itemize}
+
+\section{Directory Structure}
+\includegraphics[width=\textwidth]{dirtree.png}
+
+\clearpage
+\section{Metadata}
+{\footnotesize
+\input{metadata_descriptions}
+}
+\end{document}

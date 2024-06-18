@@ -1,0 +1,60 @@
+\begin{longtable}{c|c|c|c|c|p{6cm}}
+key & multi-line & required field & required lab &Doublin Core & description\\
+\hline
+section: [general]\\
+\hline
+label & \faTimes & True & True &  & Label of the individual measurement, This is the identifier for a given measurement at a given profile. Usually we construct the label using three parts: datetime, running number, one or two important keywords. Example: 20240516\_01\_p1\_nor \\
+person\_responsible & \faTimes & True & True & creator & The person that is responsible for this data set. This must not necessarily be the person that conducted the measurement. \\
+person\_email & \faTimes & True & True &  & Email address of the person now maintaining this data set. \\
+attending\_persons & \faTimes & False & False & contributor & All persons that were involved during the measurement. Optional: Add email addresses in parentheses, e.g. Maximilian Weigand (mweigand@geo.uni-bonn.de) \\
+theme\_complex & \faTimes & True & True & subject & Theme complex that the measurement falls under. This is the most general category for a given measurement \\
+project & \faTimes & False & False & part of title & ? \\
+datetime\_start & \faTimes & True & True & date & Starting datetime of the measurement/measurements. Use date format YYYYmmdd\_HHMM\_s . YYYY: Year (e.g., 2004), mm: Month, dd: Day of month, HH: hour (1-24), MM: Minute (1-60), SS: Second Leave unknown parts out (e.g., seconds) \\
+datetime\_end & \faTimes & False & False & date & Ending datetime of the measurement/measurements \\
+description & \faCheck & True & True & description & Description (should be short, comprehensive, and with links to detailed documentation) \\
+survey\_type & \faTimes & True & True &  & Field or laboratory measurements? Allowed values: field, laboratory \\
+method & \faTimes & True & True & False & Which method(s) were used? (e.g.: ERT, SP, GPS, GPR) \\
+experiment & \faTimes & False & False &  & Label for the experiment that a measurement is assigned to \\
+description\_exp & \faCheck & False & False &  & Description (should be short, comprehensive, and link to detailed documentation) \\
+restrictions & \faCheck & False & False & license & State any licensing restriction of the data set. Especially, note down any copyright owned by a party that is not the Department of Geophysics, Uni Bonn \\
+completed & \faTimes & True & True &  & States if the measurement series is finished or still ongoing. Possible values: yes, no \\
+keywords & \faTimes & False & False & subject & Keywords, separated by comma. \\
+related\_dois & \faCheck & False & False & references &  \\
+missing & \faCheck & False & False &  & ? \\
+problems & \faCheck & False & False &  & Known restrictions/problems of the dataset (entries should be time stamped, multi-line entries required) \\
+signed\_off\_by & \faCheck & False & False &  & ? \\
+analysis\_links & \faCheck & False & False &  & ? \\
+dt\_group & \faTimes & False & False &  & Datetime group -- Used to group measurements, e.g. into days or years \\
+\hline
+section: [field]\\
+\hline
+survey\_start & \faTimes & False & False &  & Starting datetime of survey. Intended for the field data tree. Format: yyyymmdd hh:mm:ss \\
+survey\_end & \faTimes & False & False &  & Ending datetime of survey. Intended for the field data tree. Format: yyyymmdd hh:mm:ss (same as survey\_start) \\
+site & \faTimes & True & False &  & The general area of the measurement, e.g. a town name. This is further clarified in the metadata entries "area", "profile", "coordinates" \\
+area & \faTimes & True & False &  & A more localized specification of the measurement area, e.g., an identifier of a certain field or street \\
+profile & \faTimes & True & False &  & The profile that was measured on. One common naming scheme consistent of the character "p",a running number, and a signifying key word. Example: p\_01\_nor \\
+coordinates & \faCheck & False & False &  & Coordinates of representative location(s) (i.e., starting point of measurement profile). One coordinate per line The use of WGS84 coordinates is preferred (EPSG 4326). Please state the use of other coordinate systems in the metadata entry "coordinates\_desc". Coordinates should be included in decimal notation, with a least 6 decimal digits (ca. 5-12cm precision). https://wiki.openstreetmap.org/wiki/Precision\_of\_coordinates \\
+coordinates\_desc & \faCheck & False & False &  & Description of coordinates. State used representation (e.g., WGS84 or UTM) here. Do not forget the UTM zone \\
+\hline
+section: [geoelectrics]\\
+\hline
+spacing & \faTimes & False & False &  & Electrode spacing \\
+profile\_direction & \faTimes & True & False &  & Profile direction. Allowed values: normal, reciprocal \\
+electrode\_positions & \faCheck & True & False &  & Electrode positions (x,y,z) \\
+\hline
+section: [laboratory]\\
+\hline
+site & \faTimes & False & True &  & Laboratory measurement site \\
+group & \faTimes & False & False &  & High-level group of experiments \\
+experiment\_start & \faTimes & False & False &  & Starting datetime of experiment. Intended for the laboratory data tree. Format: yyyymmdd hh:mm:ss \\
+experiment\_end & \faTimes & False & False &  & Ending datetime of experiment. Intended for the laboratory data tree. Format: yyyymmdd hh:mm:ss (same as experiment\_start) \\
+specimen & \faTimes & False & False &  & Sample material, e.g. sandstone; used mainly for laboratory measurement metadata. \\
+permeability & \faTimes & False & False &  & Permeability of sample material \\
+porosity & \faTimes & False & False &  & Porosity of sample material \\
+\hline
+section: [device]\\
+\hline
+device & \faTimes & False & False &  & Used measurement instrument. \\
+device\_serial & \faTimes & False & False &  & Serial number of instrument, required if several devices of one type exist (e.g. the DT80) \\
+programming & \faTimes & False & False &  & Optional file path to a script/file containing the programming (script) used for the measurements(s) \\
+\end{longtable}

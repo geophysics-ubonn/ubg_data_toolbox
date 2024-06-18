@@ -91,6 +91,8 @@ or *laboratory*).
 
 ## The metadata entries
 
+A typical *metadata.ini* file can look like this:
+
     [general]
     label = 20240610_ert_p1_nor
     person_responsible = Maximilian Weigand
@@ -111,6 +113,8 @@ or *laboratory*).
     [geoelectrics]
     profile_direction = normal
 
+
+Metadata entries are comprised of "key=value" pairs, grouped by *[sections]*.
 
 ## The Python helper libraries and scripts
 

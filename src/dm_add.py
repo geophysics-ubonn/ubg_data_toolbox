@@ -29,7 +29,7 @@ def handle_args():
     )
     parser.add_argument(
         '-t', '--tree',
-        help='Path of data tree (should start with: dr_',
+        help='Path of data tree (should start with: dr_)',
         required=True,
     )
     parser.add_argument(

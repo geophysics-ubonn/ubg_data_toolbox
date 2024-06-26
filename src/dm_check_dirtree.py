@@ -8,10 +8,31 @@ TODOS:
 
 """
 import os
-import sys
+import argparse
+from pathlib import Path
 
 from ubg_data_toolbox.dirtree import tree
 from ubg_data_toolbox.dirtree_nav import find_data_root
+
+
+def handle_args():
+    parser = argparse.ArgumentParser(
+        description='Add one measurement to a given data directory structure',
+    )
+    parser.add_argument(
+        '-t', '--tree',
+        help='Path of data tree (should start with: dr_). If not given, ' +
+        'use PWD ',
+        required=False,
+    )
+    parser.add_argument(
+        '-l', '--level',
+        help='Level to start checking on. This is a directory that MUST ' +
+        'reside within the data root indicated by -t/--tree',
+        required=False,
+    )
+    args = parser.parse_args()
+    return args
 
 
 class colors:
@@ -47,6 +68,86 @@ def _get_directory_name(directory):
     return workstr.split('_')[1]
 
 
+def _get_prefix_and_name(directory):
+    """Return prefix and name of a given directory
+
+    Returns
+    -------
+    prefix: str
+        Prefix of the directory level
+    name: str
+        Name of the directory level, separated using '_' by the name
+
+    """
+    workstr = os.path.basename(os.path.abspath(directory))
+    assert isinstance(directory, str)
+    index = workstr.find('_')
+    if index == -1:
+        return None
+    # print('DGB', workstr.split('_'))
+    prefix = workstr.split('_')[0]
+    name = workstr[index + 1:]
+    return prefix, name
+
+
+def _get_starting_node(start_level_raw, tree, dr_root):
+    """
+
+    Parameters
+    ----------
+    start_level_raw: str
+        The path of the starting level directory that we want to get a
+        corresponding tree node for
+    tree: ?
+        The complete directory tree structure that is used for the node search
+    dr_root: str
+        Path to the top level directory of the data tree (dr_*-directory)
+
+    Returns
+    -------
+    starting_level: str
+        Sanitized version of input start_level_raw
+    node: ?| None
+        The node corresponding to the starting_level directory path
+
+    """
+    levels_to_match = os.path.relpath(start_level_raw, dr_root).split(os.sep)
+    node = tree
+
+    # assume no conditional value on first level!
+    last_value = None
+    for level_dir in levels_to_match:
+        # print('----------------------------')
+        # print(level_dir, 'last value:', last_value)
+        prefix, value = _get_prefix_and_name(level_dir)
+        # print('  prefix', prefix, ' value:', value)
+        new_node = None
+        for child in node.children:
+            # print(child)
+            if child.abbreviation == prefix:
+                # print('found it')
+                new_node = child
+                break
+        for child_condition in node.conditional_children.keys():
+            # print('conditional child', child_condition)
+            if last_value == child_condition:
+                # print('Found conditional')
+                abbreviation = node.conditional_children[
+                    last_value
+                ].abbreviation
+                if prefix == abbreviation:
+                    # print('    mathed conditioned', )
+                    new_node = node.conditional_children[last_value]
+                    break
+        if new_node is None:
+            print('ERROR')
+            break
+        last_value = value
+        node = new_node
+
+    return start_level_raw, node
+
+
 def print_directory_path(directory, color=colors.RED, base_level=0):
     for level, dirpart in enumerate(directory.split(os.sep)):
         print(color + '    ' * (base_level + level) + dirpart + colors.ENDC)
@@ -60,6 +161,10 @@ def walk_and_check_dirtree(directory, nodes, basedir, level=0):
     directory : str
         Directory to check
     nodes :
+
+    basedir :
+
+    level : int, default: 0
 
     """
     dr_root = find_data_root(directory)
@@ -176,12 +281,13 @@ def walk_and_check_dirtree(directory, nodes, basedir, level=0):
 
 
 def main():
-    if len(sys.argv) == 2:
-        directory = sys.argv[1]
-        assert os.path.isdir(directory), 'Argument is not a valid directory'
-    else:
+    args = handle_args()
+
+    if args.tree is None:
         # assume pwd as directory
         directory = os.getcwd()
+    else:
+        assert os.path.isdir(directory), 'Argument is not a valid directory'
 
     print('Working in directory', directory)
     dr_root = find_data_root(directory)
@@ -195,9 +301,27 @@ def main():
         )
     )
     print('.' * 80)
+
+    init_level = dr_root
+    init_node = tree
+    if args.level is not None:
+        assert os.path.isdir(args.level), \
+            "-l/--level must point to a valid directory within the data tree!"
+
+        p_dr_root = Path(dr_root)
+        p_level = Path(os.path.abspath(args.level))
+        assert p_dr_root in p_level.parents, \
+            "-l/--level must be a subdirectory of the data tree"
+
+        start_level, start_node = _get_starting_node(args.level, tree, dr_root)
+        assert start_node is not None, "ERROR"
+        init_level = start_level
+        init_node = start_node
+
     # TODO: I forgot what the basedir parameter actually does
     walk_and_check_dirtree(
-        dr_root, [tree, ],
+        init_level,
+        [init_node, ],
         basedir=os.getcwd(),
         # basedir=dr_root,
         level=0

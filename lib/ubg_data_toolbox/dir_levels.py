@@ -1,6 +1,7 @@
 """
 Define directory levels for the data structure (but not the structure itself)
 """
+from ubg_data_toolbox.dir_level_checks import check_m_label_and_directory_match
 from ubg_data_toolbox.dir_level_checks import check_m_metadata_ini_exists
 from ubg_data_toolbox.dir_level_checks import check_m_empty_directories
 from ubg_data_toolbox.dir_level_checks import \
@@ -203,8 +204,9 @@ measurement_field = directory_level(
         'Check for required metadata.ini file:': check_m_metadata_ini_exists,
         'Check for required metadata entries':
             check_m_metadata_has_required_and_nonempty_entries,
-        'Check metadata contents':
-            check_m_metadata_contents,
+        'Check metadata contents': check_m_metadata_contents,
+        'Check consistency of label and dir name':
+            check_m_label_and_directory_match
     },
 )
 

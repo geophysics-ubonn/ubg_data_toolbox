@@ -12,6 +12,7 @@ import argparse
 from pathlib import Path
 
 from ubg_data_toolbox.dirtree import tree
+from ubg_data_toolbox import id_handling
 from ubg_data_toolbox.dirtree_nav import find_data_root
 
 
@@ -168,6 +169,8 @@ def walk_and_check_dirtree(directory, nodes, basedir, level=0):
 
     """
     dr_root = find_data_root(directory)
+    # re-scan the complete directory for ids
+    id_handler = id_handling.data_id_handler(dr_root, try_cache=False)
     directory_name = os.path.basename(os.path.abspath(directory))
     # print('@@@')
     # print(directory)
@@ -234,7 +237,8 @@ def walk_and_check_dirtree(directory, nodes, basedir, level=0):
             os.path.relpath(
                 os.path.abspath(directory),
                 start=basedir
-            )
+            ),
+            id_handler=id_handler,
         )
         if check_value == 0:
             print(colors.GREEN, end='')

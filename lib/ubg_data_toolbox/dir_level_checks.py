@@ -7,6 +7,8 @@ Naming convention: check_[level abbreviation]_[short_description]
 import os
 import datetime
 
+from ubg_data_toolbox.metadata import metadata_chain
+
 CHECK_OK = 0
 CHECK_WARNING = 1
 CHECK_NOT_OK = 2
@@ -17,7 +19,30 @@ bool_converter = {
 }
 
 
-def check_m_metadata_ini_exists(directory):
+def check_m_label_and_directory_match(directory, id_handler):
+    """For a measurement directory, make sure that the name of the directory
+       matches the label in the metadata
+    """
+
+    chain = metadata_chain(directory)
+    md = chain.get_merged_metadata()
+    m_dir = os.path.basename(os.path.abspath(directory))
+    assert m_dir[0:2] == 'm_', "no measurement directory"
+    label_dir = m_dir[2:]
+
+    check_result = False
+    if 'general' in md and 'label' in md['general']:
+        check_result = md['general']['label'].value == label_dir
+
+    if check_result:
+        error_msg = 'ok'
+    else:
+        error_msg = 'not ok: label and directory do not match'
+
+    return bool_converter[check_result], error_msg
+
+
+def check_m_metadata_ini_exists(directory, id_handler):
     """Check if the metadata.ini file exists in the given directory
     """
     check_result = os.path.isfile(directory + os.sep + 'metadata.ini')
@@ -76,17 +101,17 @@ def _check_metadata_datetime_is_correct_format(md):
     return all_good, error_msg
 
 
-def check_m_metadata_contents(directory):
+def check_m_metadata_contents(directory, id_handler):
     """Overall check for all metadata contents (i.e., correct date formats,
     etc)
     """
     # read in available metadata
-    from ubg_data_toolbox.metadata import metadata_chain
     chain = metadata_chain(directory)
     md = chain.get_merged_metadata()
 
     # now call the subchecks
     check_result, error_msg = _check_metadata_datetime_is_correct_format(md)
+    # place additional checks here
 
     # for now just return this. When we get more checks, return values need to
     # be aggregated
@@ -97,7 +122,7 @@ def check_m_metadata_contents(directory):
     return return_value, error_msg
 
 
-def check_m_metadata_has_required_and_nonempty_entries(directory):
+def check_m_metadata_has_required_and_nonempty_entries(directory, id_handler):
     # be careful with importing at the beginning of the file: circular imports
     # possible!
     from ubg_data_toolbox.metadata import metadata_chain
@@ -176,7 +201,7 @@ def check_m_metadata_has_required_and_nonempty_entries(directory):
     return check_result, error_msg
 
 
-def check_m_empty_directories(directory):
+def check_m_empty_directories(directory, id_handler):
     """We would like to recommend to not create certain directories empty
     """
     dirs_that_shouldnt_be_empty = (

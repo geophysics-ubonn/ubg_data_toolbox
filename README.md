@@ -63,13 +63,13 @@ larger research institutions.
 
 ## The data tree
 
-A data tree consists of pre-defined levels, some of which are optional. Each
-directory level is uniquely identified by a two-character prefix, separated by
-the level name by an underscore. Some levels are restricted to a certain set of
-possible level names (i.e., the **target** level only allows the values *field*
-or *laboratory*).
+A data tree consists of pre-defined levels, some of which are optional.
+Each directory level is uniquely identified by a two-character prefix,
+separated by the level name by an underscore.
+ Some levels are restricted to a certain set of possible level names (i.e., the
+**target** level only allows the values *field* or *laboratory*).
 
-  The following image visualizes the directory structure:
+The following image visualizes the directory structure:
 
   ![dirstruc.jpg](dirstruc.jpg)
 
@@ -88,6 +88,33 @@ or *laboratory*).
                                 └── RawData
                                     └── data.dat
   ```
+### Measurement directories
+
+Measurement directories (starting with *m_*) can contain the following
+subdirectories (it is advised to not create empty directories):
+
+* **Analysis/** directories are `free-for-all', that is, no internal structure
+  is prescribed. Use these directories to store relevant analysis steps (but in
+  general, analysis should happen outside a data directory tree!)
+* **DataProcessed/** holds processed data, e.g., with certain corrections or
+  clean-ups applied. Ensure proper documentation!
+* **DataRaw/** holds the raw data, as downloaded from the device
+* **Documentation/** contains all auxiliary data that can not be included in
+  the metadata file. This includes maps, pdfs, literature and external
+  documentation
+* **Pictures/** Store relevant pictures of the measurement in here
+
+### Special directories
+
+* All levels are allowed to include an subdirectory *Documentation*. This
+  directory can contain arbitrary information that is considered important for
+  a given level/measurement. Use these directories to store auxiliary
+  information, such as maps, notebook scans, programming information of
+  measurement devices, etc.
+* The *dr_[DATA ROOT NAME]* directory can contain a subdirectory *.management*.
+  This directory is used to store temporary/caching data of the data toolbox.
+  It can always be safely deleted without removing any relevant data.
+  The directory is used, for example, to store a list of currently-used ids.
 
 ## The metadata entries
 
@@ -202,7 +229,9 @@ You can also clone this directory and install from there:
  TODO
 * Isn't adding all the metadata of a given site/location highly repetitive?
 
-  Yes, but it also keeps things simple. The metadata definition, and the Python library, already support metadata added to different levels of a data tree. This way, common metadata entries can be propagated downwards.
+  Yes, but it also keeps things simple. The metadata definition, and the Python
+library, already support metadata added to different levels of a data tree.
+This way, common metadata entries can be propagated downwards.
 
   This approach, however, introduces quite some complications:
     * How to deal with inconsistent data (must be dealt with when integrating existing measurement directories into a data tree)?

@@ -39,6 +39,7 @@ if __name__ == '__main__':
             'numpy',
             'ipython',
             'prompt_toolkit',
+            'pandas',
         ],
         classifiers=[
             "Development Status :: 4 - Beta",

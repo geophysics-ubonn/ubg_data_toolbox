@@ -75,11 +75,12 @@ def main():
             print('prefix:', prefix)
             print('Assigning new id', mdir)
             new_id = 'ubg_{:08}'.format(running_id_nr + 1)
+            print('New id:', new_id)
             config['general']['id'] = new_id
             # save
-            with open(filename, 'w') as fid:
-                pass
-                # config.write(fid)
+            # with open(filename, 'w') as fid:
+            #     pass
+            #     config.write(fid)
             running_id_nr += 1
 
 

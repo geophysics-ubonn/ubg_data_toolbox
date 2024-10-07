@@ -3,9 +3,24 @@
 """
 
 import os
+import argparse
 
 from ubg_data_toolbox.dirtree import tree
 from ubg_data_toolbox.dirtree_nav import find_data_root
+from ubg_data_toolbox.metadata import metadata_chain
+
+
+def handle_args():
+    parser = argparse.ArgumentParser(
+        description='Add one measurement to a given data directory structure',
+    )
+    parser.add_argument(
+        '-g', '--general',
+        help='Also print out metadata from [general] (separate keys with ;)',
+        required=False,
+    )
+    args = parser.parse_args()
+    return args
 
 
 def _get_prefix(directory):
@@ -27,7 +42,8 @@ def _get_directory_name(directory):
     return workstr.split('_')[1]
 
 
-def walk_and_print_dirtree(directory, nodes, basedir, level=0):
+def walk_and_print_dirtree(
+        directory, nodes, basedir, level=0, metadata_entries=None):
     dr_root = find_data_root(directory)
     directory_name = os.path.basename(os.path.abspath(directory))
     # print('@@@')
@@ -77,12 +93,25 @@ def walk_and_print_dirtree(directory, nodes, basedir, level=0):
     # variable, which could also directly store these tests.
 
     if prefix == 'm':
+        # found one measurement
         print(
             os.path.relpath(
                 directory,
                 os.path.dirname(dr_root)
             )
         )
+
+        if metadata_entries is not None:
+            chain = metadata_chain(directory)
+            mdata = chain.get_merged_metadata()
+            items = metadata_entries.split(';')
+            if 'general' in mdata:
+                for item in items:
+                    if item in mdata['general']:
+                        print(' ' * 8 + '{} = {}'.format(
+                            item,
+                            mdata['general'][item].value
+                        ))
 
     # Next level:
     subdirs = [
@@ -108,17 +137,23 @@ def walk_and_print_dirtree(directory, nodes, basedir, level=0):
             for subdir in subdirs:
                 # found a condition
                 walk_and_print_dirtree(
-                    subdir, child_nodes, basedir, level + 1)
+                    subdir, child_nodes, basedir, level + 1,
+                    metadata_entries
+                )
     else:
         # do not continue of there are no remaining node children
         if len(node.children) == 0:
             return
 
         for subdir in subdirs:
-            walk_and_print_dirtree(subdir, node.children, basedir, level + 1)
+            walk_and_print_dirtree(
+                subdir, node.children, basedir, level + 1, metadata_entries
+            )
 
 
 def main():
+    args = handle_args()
+
     directory = os.getcwd()
     dr_root = find_data_root(directory)
     print(
@@ -133,6 +168,7 @@ def main():
         [tree, ],
         basedir=os.getcwd(),
         # basedir=dr_root,
-        level=0
+        level=0,
+        metadata_entries=args.general,
     )
     print('.' * 80)

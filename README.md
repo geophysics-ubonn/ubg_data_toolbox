@@ -118,13 +118,6 @@ Metadata entries are comprised of "key=value" pairs, grouped by *[sections]*.
 
 ## The Python helper libraries and scripts
 
-### Installation
-
-    pip install git+https://gitlab.uni-bonn.de/grp_unibonn-geophysics/ubg_data_management.git
-    # in the future we will also upload package to Pypi
-    # pip install ubg_data_management
-
-
 ### Adding new data
 
 The command **dm_add** can be used to easily add data to an existing, or new,

@@ -132,6 +132,24 @@ def check_m_metadata_has_required_and_nonempty_entries(directory):
         for key, item in md[section].items():
             # is this item required
             if getattr(item, check_key):
+                # now check if there are conditions to be met
+                # print('condition check1', getattr(item, 'conditions'))
+                if getattr(item, 'conditions') is not None:
+                    conditions = item.conditions
+                    # print('testing conditions:', conditions)
+                    all_met = True
+                    # import IPython
+                    # IPython.embed()
+                    for cond_obj, condition in conditions.items():
+                        # check if this condition is met
+                        # test_value = getattr(item, cond_obj.name)
+                        # print('test_value:', cond_obj.value, condition)
+                        test_result = cond_obj.value in condition
+                        all_met = all_met & test_result
+                        # print('all_met', all_met)
+                    if not all_met:
+                        continue
+                # print('Checking required item', item, item.name, item.value)
                 # if .value is None, this means we do not have this entry in
                 # the metadata.ini file
                 if item.value is None:

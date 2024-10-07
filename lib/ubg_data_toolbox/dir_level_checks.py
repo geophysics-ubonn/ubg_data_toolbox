@@ -7,7 +7,6 @@ Naming convention: check_[level abbreviation]_[short_description]
 import os
 import datetime
 
-from ubg_data_toolbox.metadata import metadata_chain
 
 CHECK_OK = 0
 CHECK_WARNING = 1
@@ -23,7 +22,7 @@ def check_m_label_and_directory_match(directory, id_handler):
     """For a measurement directory, make sure that the name of the directory
        matches the label in the metadata
     """
-
+    from ubg_data_toolbox.metadata import metadata_chain
     chain = metadata_chain(directory)
     md = chain.get_merged_metadata()
     m_dir = os.path.basename(os.path.abspath(directory))
@@ -105,6 +104,7 @@ def check_m_metadata_contents(directory, id_handler):
     """Overall check for all metadata contents (i.e., correct date formats,
     etc)
     """
+    from ubg_data_toolbox.metadata import metadata_chain
     # read in available metadata
     chain = metadata_chain(directory)
     md = chain.get_merged_metadata()

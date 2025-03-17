@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import os
+import pathlib
 import argparse
 
 from ubg_data_toolbox.metadata import metadata_chain
@@ -7,23 +8,69 @@ from ubg_data_toolbox import id_handling
 from ubg_data_toolbox.dirtree_nav import find_data_root
 
 
+class id_generator_simple(object):
+    """A simple ID generator that generates alpha-numeric ID in the form
+        '[PREFIX]_[SITE]_[YEAR:%04i]_[RUNNING_NR:%08i]',
+    """
+    def __init__(self, handler, prefix=None, start_nr=None):
+        self.handler = handler
+        if prefix is None or prefix == '':
+            self.prefix = ''
+        else:
+            self.prefix = prefix + '_'
+        self.next_nr = start_nr
+
+    def gen_id(self, metadata):
+        if metadata['general']['survey_type'] == 'field':
+            site = metadata['field']['site'].lower()
+        else:
+            site = ''
+
+        new_id = '{}{}_{}_{:04}_{:08}'.format(
+            self.prefix,
+            site,
+            metadata['general']['method'].lower(),
+            metadata['general']['datetime_start'][0:4],
+            self.next_nr
+        )
+        self.next_nr += 1
+        return new_id
+
+    def get_next_free_id(self, metadata):
+        new_id = self.gen_id(metadata)
+        while self.handler.check_id_present(new_id):
+            new_id = self.gen_id()
+        return new_id
+
+
 def handle_args():
     parser = argparse.ArgumentParser(
         description='Fill in missing ids using the Schema: ' +
         '[SITE]_[YEAR]_[RUNNING_NR]',
     )
-    # parser.add_argument(
-    #     '-p',
-    #     help='Prefix for new ids',
-    #     required=True,
-    # )
+    parser.add_argument(
+        '--level',
+        help='Start level (directory). Only m_ directories below this ' +
+        'directory will be modified',
+        required=False,
+    )
+    parser.add_argument(
+        '--prefix',
+        help='Prefix for new ids',
+        required=False,
+    )
+    parser.add_argument(
+        '--dry-run',
+        help='Dry run - Do not write anything to disk',
+        required=False,
+        action='store_true',
+    )
     args = parser.parse_args()
     return args
 
 
 def main():
     args = handle_args()
-    args
 
     # we assume that we are located in a data tree
     # note: this could also be modified via args in the future ...
@@ -32,12 +79,35 @@ def main():
     dr_root = find_data_root(datatree)
     assert dr_root is not None, 'Could not find a data root directory'
 
-    handler = id_handling.data_id_handler(dr_root, try_cache=False)
+    handler = id_handling.data_id_handler(
+        dr_root,
+        try_cache=True,
+        update_cache=False
+    )
 
-    print('Adding IDs to measurements without one:')
+    id_gen = id_generator_simple(
+        handler,
+        prefix=args.prefix,
+        start_nr=1,
+    )
 
+    print('Adding IDs to measurements missing an ID:')
+
+    if args.level is not None:
+        start_dir = os.path.abspath(args.level)
+        assert os.path.isdir(start_dir), 'Directory {} does not exist'.format(
+            start_dir
+        )
+        p_start = pathlib.Path(start_dir)
+        p_dr = pathlib.Path(dr_root)
+        if p_start != p_dr and p_dr not in p_start.parents:
+            raise Exception('The subdir must be located in the data root')
+    else:
+        start_dir = dr_root
+
+    print('Starting directory:', start_dir)
     m_dirs = []
-    for root, dirs, files in os.walk(dr_root):
+    for root, dirs, files in os.walk(start_dir):
         if os.path.basename(root).startswith('m_'):
             metadata_file = root + os.sep + 'metadata.ini'
             if os.path.isfile(metadata_file):
@@ -72,41 +142,25 @@ def main():
                     print('site missing from [field] section')
                     continue
 
-            prefix = '{}_{}_{}_'.format(
-                config['field']['site'].lower(),
-                config['general']['method'].lower(),
-                config['general']['datetime_start'][0:4],
+            new_id = id_gen.get_next_free_id(config)
+
+            if args.level is not None:
+                mdir_short = os.path.relpath(mdir, args.level)
+            else:
+                mdir_short = mdir
+            print(
+                'Assigning new id "{}" for "{}"'.format(new_id, mdir_short)
             )
-
-            class id_generator(object):
-                def __init__(self, prefix, start_nr, handler):
-                    self.prefix = prefix.replace(' ', '_')
-                    self.nr = start_nr
-                    self.handler = handler
-
-                def gen_id(self):
-                    new_id = '{}_{:08}'.format(
-                        self.prefix,
-                        self.nr
-                    )
-                    self.nr += 1
-                    return new_id
-
-                def get_next_free_id(self):
-                    new_id = self.gen_id()
-                    while self.handler.check_id_present(new_id):
-                        new_id = self.gen_id()
-                    return new_id
-
-            generator = id_generator(prefix, 0, handler)
-            new_id = generator.get_next_free_id()
-
-            print('Assigning new id {} for {}:', new_id, mdir)
             config['general']['id'] = new_id
 
-            with open(filename, 'w') as fid:
+            if not args.dry_run:
                 pass
-                config.write(fid)
+                with open(filename, 'w') as fid:
+                    config.write(fid)
+
+    if args.dry_run:
+        print("WARNING WARNING WARNING")
+        print('This was a dry-run, no changes were written to disk!')
 
 
 if __name__ == '__main__':

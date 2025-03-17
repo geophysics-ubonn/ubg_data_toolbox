@@ -821,7 +821,7 @@ def get_md_values():
         allowed_values=None,
         conditions={
             md_survey_type: 'field',
-            md_method: 'ERT',
+            md_method: ('IP', 'EIT', 'ERT'),
         },
         autocomplete=[
             'ERT',

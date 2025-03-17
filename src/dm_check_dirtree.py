@@ -85,7 +85,7 @@ def _get_prefix_and_name(directory):
     index = workstr.find('_')
     if index == -1:
         return None
-    # print('DGB', workstr.split('_'))
+
     prefix = workstr.split('_')[0]
     name = workstr[index + 1:]
     return prefix, name
@@ -154,7 +154,7 @@ def print_directory_path(directory, color=colors.RED, base_level=0):
         print(color + '    ' * (base_level + level) + dirpart + colors.ENDC)
 
 
-def walk_and_check_dirtree(directory, nodes, basedir, level=0):
+def walk_and_check_dirtree(directory, nodes, basedir, id_handler, level=0):
     """
 
     Parameters
@@ -168,14 +168,11 @@ def walk_and_check_dirtree(directory, nodes, basedir, level=0):
     level : int, default: 0
 
     """
-    dr_root = find_data_root(directory)
-    # re-scan the complete directory for ids
-    id_handler = id_handling.data_id_handler(dr_root, try_cache=False)
     directory_name = os.path.basename(os.path.abspath(directory))
-    # print('@@@')
-    # print(directory)
-    # print(dr_root)
-    relpath = os.path.relpath(directory, os.path.dirname(dr_root))
+    relpath = os.path.relpath(
+        directory,
+        basedir
+    )
 
     # the nodes list contains all dir levels allowed for this level
     print('    ' * level + 'Directory', relpath)
@@ -230,9 +227,13 @@ def walk_and_check_dirtree(directory, nodes, basedir, level=0):
     # print(node.name, node.abbreviation, node)
     # TODO: Any level-specific tests could now be called here using the node
     # variable, which could also directly store these tests.
+
+    # for this node, call all check functions
+    found_something = False
+    node_output = ''
     for check_label, check_function in node.checks.items():
         # print('@@@@@@@@@@@@@@@@@@ CHECK', check_label)
-        print('    ' * (level + 1) + check_label, ' ', end='')
+        node_output += '    ' * (level + 1) + check_label + ' '
         check_value, error_msg = check_function(
             os.path.relpath(
                 os.path.abspath(directory),
@@ -241,14 +242,21 @@ def walk_and_check_dirtree(directory, nodes, basedir, level=0):
             id_handler=id_handler,
         )
         if check_value == 0:
-            print(colors.GREEN, end='')
+            node_output += colors.GREEN
         elif check_value == 1:
-            print(colors.YELLOW, end='')
+            found_something = True
+            node_output += colors.YELLOW
         elif check_value == 2:
-            print(colors.RED, end='')
+            found_something = True
+            node_output += colors.RED
 
-        print(error_msg.replace('\n', '\n' + '    ' * (level + 2)), end='')
-        print(colors.ENDC)
+        node_output += error_msg.replace(
+            '\n', '\n' + '    ' * (level + 2)
+        ).rstrip()
+        node_output += colors.ENDC
+        node_output += '\n'
+    if found_something:
+        print(node_output)
 
     # Next level:
     subdirs = [
@@ -274,14 +282,15 @@ def walk_and_check_dirtree(directory, nodes, basedir, level=0):
             for subdir in subdirs:
                 # found a condition
                 walk_and_check_dirtree(
-                    subdir, child_nodes, basedir, level + 1)
+                    subdir, child_nodes, basedir, id_handler, level + 1)
     else:
         # do not continue of there are no remaining node children
         if len(node.children) == 0:
             return
 
         for subdir in subdirs:
-            walk_and_check_dirtree(subdir, node.children, basedir, level + 1)
+            walk_and_check_dirtree(
+                subdir, node.children, basedir, id_handler, level + 1)
 
 
 def main():
@@ -291,6 +300,7 @@ def main():
         # assume pwd as directory
         directory = os.getcwd()
     else:
+        directory = args.tree
         assert os.path.isdir(directory), 'Argument is not a valid directory'
 
     print('Working in directory', directory)
@@ -322,11 +332,19 @@ def main():
         init_level = start_level
         init_node = start_node
 
+    # re-scan the complete directory for ids
+    id_handler = id_handling.data_id_handler(
+        dr_root,
+        try_cache=True,
+        update_cache=False,
+    )
+
     # TODO: I forgot what the basedir parameter actually does
     walk_and_check_dirtree(
         init_level,
         [init_node, ],
         basedir=os.getcwd(),
+        id_handler=id_handler,
         # basedir=dr_root,
         level=0
     )

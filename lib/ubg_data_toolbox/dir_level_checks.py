@@ -161,19 +161,15 @@ def check_m_metadata_has_required_and_nonempty_entries(directory, id_handler):
         for key, item in md[section].items():
             # is this item required
             if getattr(item, check_key):
-                print('ITEM: ', item.name)
                 # now check if there are conditions to be met
-                print('condition check1', getattr(item, 'conditions'))
                 if getattr(item, 'conditions') is not None:
                     conditions = item.conditions
-                    print('  testing conditions:', conditions.keys())
                     all_met = True
                     # import IPython
                     # IPython.embed()
                     for cond_obj, condition in conditions.items():
                         # check if this condition is met
                         # test_value = getattr(item, cond_obj.name)
-                        print('    test_value:', cond_obj.value, condition)
                         if isinstance(condition, tuple):
                             test_result = cond_obj.value in condition
                         else:

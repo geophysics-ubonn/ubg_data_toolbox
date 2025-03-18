@@ -9,6 +9,7 @@ from prompt_toolkit.shortcuts import button_dialog
 
 import ubg_data_toolbox.dirtree_nav as dirtree_nav
 from ubg_data_toolbox.dir_levels import measurement_lab, measurement_field
+from ubg_data_toolbox import id_handling
 
 nodes = {
     'field': measurement_field,
@@ -40,6 +41,11 @@ def main():
         directory = os.getcwd()
 
     print('Working in directory', directory)
+    id_handler = id_handling.data_id_handler(
+        directory,
+        try_cache=True,
+        update_cache=False,
+    )
 
     # check if we already are located within a data directory. This can fail,
     # but if we get a valid data directory, then we can try to infer the
@@ -86,7 +92,7 @@ def main():
 
     for key, item in node.checks.items():
         print('# CHECK:', key)
-        check_value, error_msg = item(directory)
+        check_value, error_msg = item(directory, id_handler)
         if check_value == 0:
             print(colors.GREEN, end='')
         elif check_value == 1:

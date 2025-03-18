@@ -43,6 +43,8 @@ class directory_level(object):
         # NOTE: We assume that if there are conditional children, then no
         # "normal" children need to be assumed
         # sometimes we branch based on the value of this directory level
+        # TODO: Document the specific structure of conditions
+        # TODO: Check if we can check against categories other than 'general'
         self.conditional_children = kwargs.get('conditional_children', {})
 
         # all other requirements go here

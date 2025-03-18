@@ -2,6 +2,9 @@
 Define meta data entries and, where possible, map them to the directory levels
 
 """
+import os
+import configparser
+
 import ubg_data_toolbox.dir_levels as dir_levels
 
 
@@ -55,6 +58,31 @@ class metadata_tree(dict):
                 representation += 'Section: {}\n'.format(section)
                 representation += subrepr
         return representation
+
+    def to_file(self, filename, overwrite=False):
+        """Write metadata to file (usually a metadata.ini file)
+
+        Parameters
+        ----------
+        filename: str
+            Path of new filename
+
+        """
+        if os.path.isfile(filename):
+            print('metadta.ini already exists')
+            if not overwrite:
+                print('will not overwrite')
+                return
+        cfg_file = configparser.ConfigParser(comment_prefixes=None)
+
+        for section in self.keys():
+            cfg_file.add_section(section)
+            for key in self[section].keys():
+                value = self[section][key].value
+                if value is not None:
+                    cfg_file[section][key] = value
+        with open(filename, 'w') as fid:
+            cfg_file.write(fid)
 
 
 class md_entry(object):
@@ -131,8 +159,7 @@ class md_entry(object):
 
 
 def get_md_values():
-    """
-    Get an instance of the metadata entry structure
+    """ Get an instance of the metadata entry structure
     """
 
     md_survey_type = md_entry(
@@ -213,7 +240,9 @@ def get_md_values():
         description=''.join((
             'The profile that was measured on. One common naming scheme ',
             'consistent of the character "p",a running number, and ',
-            'a signifying key word. Example: p_01_nor'
+            'a signifying key word. Example: p_01_nor.',
+            'Use "complete_area" for unspecific locations, i.e., whole-day ',
+            'gps measurements at one location'
         )),
         plevel=dir_levels.profile,
         data_type=str,
@@ -892,6 +921,12 @@ def get_md_values():
     }
 
     return metadata_tree(md_entries)
+
+
+def get_empty_metadata_tree():
+    """Return an empty metadata tree"""
+    md_tree = get_md_values()
+    return md_tree
 
 
 def export_metadata_to_latex():

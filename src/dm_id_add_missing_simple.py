@@ -147,7 +147,7 @@ def main():
             if args.level is not None:
                 mdir_short = os.path.relpath(mdir, args.level)
             else:
-                mdir_short = mdir
+                mdir_short = os.path.relpath(mdir, dr_root)
             print(
                 'Assigning new id "{}" for "{}"'.format(new_id, mdir_short)
             )
@@ -159,6 +159,9 @@ def main():
                     config.write(fid)
 
     if args.dry_run:
+        print('')
+        print('')
+        print('-' * 80)
         print("WARNING WARNING WARNING")
         print('This was a dry-run, no changes were written to disk!')
 

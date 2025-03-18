@@ -1,6 +1,14 @@
+"""
+
+"""
 import os
 
+from ubg_data_toolbox.dirtree_nav import find_data_root
+from ubg_data_toolbox.dirtree_nav import get_dirtree_values
 from ubg_data_toolbox.dirtree import tree
+from ubg_data_toolbox.metadata_definitions import metadata_tree
+from ubg_data_toolbox.metadata_definitions import get_empty_metadata_tree
+import ubg_data_toolbox.dir_levels
 
 
 def _dirtree_next_level(node, md_entries, override_name=None):
@@ -74,3 +82,70 @@ def gen_dirtree_from_metadata(
         dirtree = os.path.abspath(dirtree)
 
     return dirtree
+
+
+def check_mdir_is_proper(mdir):
+    """Check that a given directory path points to a valid measurement
+    directory
+
+    Parameters
+    ----------
+    mdir : str
+        Path to m_dir
+
+    """
+    mdir_full = os.path.abspath(mdir)
+    is_valid = True
+    if find_data_root(mdir_full) is None:
+        is_valid = False
+    if not os.path.isdir(mdir_full):
+        is_valid = False
+    if not os.path.basename(mdir_full).startswith('m_'):
+        is_valid = False
+
+    return is_valid
+
+
+def gen_metadata_from_mdir(mdir, metadata=None):
+    """Generate metadata, given the path of a measurement directory
+
+    Parameters
+    ----------
+    mdir : str
+        Path to an measurement directory. Can be a relative value
+    metadata : None|ubg_data_toolbox.metadata_definitions.metadata_tree
+
+    """
+    mdir_full = os.path.abspath(mdir)
+    assert check_mdir_is_proper(mdir_full)
+
+    if metadata is None:
+        # get an empty metadata tree
+        metadata = get_empty_metadata_tree()
+
+    presets = get_dirtree_values('.')
+
+    def update_md(
+            metadata: metadata_tree,
+            node: ubg_data_toolbox.dir_levels.directory_level,
+            presets: dict):
+
+        if node.abbreviation not in presets:
+            return
+        value = presets[node.abbreviation]
+        presets.pop(node.abbreviation)
+
+        if node.md_mapping is not None:
+            category, key = node.md_mapping
+            metadata[category][key].value = value
+
+        if len(node.conditional_children) > 0:
+            if value not in node.conditional_children:
+                return
+            update_md(metadata, node.conditional_children[value], presets)
+        else:
+            for child in node.children:
+                update_md(metadata, child, presets)
+
+    update_md(metadata, tree, presets)
+    return metadata

@@ -141,6 +141,9 @@ def copy_research_data(data_input, dir_to_m_dir, move=False, verbose=True):
                 target_dir + os.sep + subdir
             )
 
+    print(data_input)
+    import IPython
+    IPython.embed()
     if len(data_input) > 1 or os.path.isfile(data_input[0]):
         # create output directories
         os.makedirs(dir_to_m_dir + os.sep + 'RawData')
@@ -186,6 +189,7 @@ def get_defaults_from_input_dirtree(data_input):
 
     if len(data_input) > 1 or os.path.isfile(data_input[0]):
         pass
+        raise Exception('Handling of multiple files not implemented yet')
         # TODO: Analyze file(s)
     else:
         basename = os.path.basename(data_input[0])

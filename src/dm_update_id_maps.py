@@ -68,5 +68,6 @@ def main():
     )
     id_handler
     id_handler.update_id_maps_from_dirtree(subdir=args.level)
+    id_handler.save_to_cache()
     # import IPython
     # IPython.embed()

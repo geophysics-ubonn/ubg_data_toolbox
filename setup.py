@@ -3,8 +3,8 @@ import os
 from glob import glob
 from setuptools import setup
 
-version_short = '0.1'
-version_long = '0.1.0'
+version_short = '0.2'
+version_long = '0.2.0'
 
 extra = {}
 

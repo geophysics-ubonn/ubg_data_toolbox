@@ -4,7 +4,7 @@ from glob import glob
 from setuptools import setup
 
 version_short = '0.2'
-version_long = '0.2.1'
+version_long = '0.2.2'
 
 extra = {}
 

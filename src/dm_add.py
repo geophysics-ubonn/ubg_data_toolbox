@@ -144,7 +144,7 @@ def copy_research_data(data_input, dir_to_m_dir, move=False, verbose=True):
     # print(data_input)
     # import IPython
     # IPython.embed()
-    if len(data_input) > 1 and os.path.isfile(data_input[0]):
+    if len(data_input) > 1 or os.path.isfile(data_input[0]):
         # create output directories
         os.makedirs(dir_to_m_dir + os.sep + 'RawData')
         if len(data_input) > 1:
@@ -187,7 +187,7 @@ def get_defaults_from_input_dirtree(data_input):
     """
     cache_default_input = md_cache_default_values(None)
 
-    if len(data_input) > 1 or os.path.isfile(data_input[0]):
+    if len(data_input) > 1 and os.path.isfile(data_input[0]):
         pass
         raise Exception('Handling of multiple files not implemented yet')
         # TODO: Analyze file(s)

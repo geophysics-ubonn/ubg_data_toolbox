@@ -68,8 +68,17 @@ def _(event):
     event.app.exit()
 
 
+# this is just an alternative to ALT-ENTER for ending multi-line input
+# we had some problems on MAC systems
+@bindings.add('c-e')
+def _(event):
+    # commit the current buffer
+    event.app.current_buffer.validate_and_handle()
+
+
 @bindings.add('c-z')
 def _(event):
+    # do we allow ending here?
     if event.app.no_end_now:
         # do noting
         return
@@ -206,7 +215,7 @@ def ask_user_for_metadata(
         if entry.multiline:
             info_text = info_text + [
                 HTML('This is a <b>multiline</b> input'),
-                HTML('End input using <b>ALT - ENTER</b>'),
+                HTML('End input using <b>ALT - ENTER</b> or <b>STRG - e</b>'),
             ]
         else:
             pass

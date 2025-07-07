@@ -11,7 +11,8 @@ from ubg_data_toolbox.dirtree_nav import find_data_root
 
 def _get_configparser():
     return configparser.ConfigParser(
-        comment_prefixes=None
+        comment_prefixes=None,
+        interpolation=None,
     )
 
 

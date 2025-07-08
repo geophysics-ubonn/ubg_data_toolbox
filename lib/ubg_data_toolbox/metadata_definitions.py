@@ -844,7 +844,15 @@ def get_md_values():
         required_lab=False,
         multiline=True,
         dublin_core=None,
-        description='Electrode positions (x,y,z)',
+        description=''.join((
+            'Electrode positions (x,y,z).',
+            'The are the final electrode positions used for generating FE ',
+            'meshes. For 2D profiles, provide only (x,z) data.',
+            'As the unit use meter [m].',
+            'Note that somewhere in the metadata explanations on how ',
+            'initial coordinates (i.e. gps data) was transformed ',
+            'to yield these coordinates',
+        )),
         plevel=[dir_levels.measurement_field, ],
         data_type=str,
         allowed_values=None,
@@ -966,7 +974,9 @@ def export_metadata_to_latex():
                     entry.required_lab,
                     dc,
                     entry.description
-                ).replace('_', r'\_').replace('%', r'\%')
+                ).replace('_', r'\_').replace('%', r'\%').replace(
+                    '#', r'\#'
+                )
             )
 
     str_lines.append(r'\end{longtable}')

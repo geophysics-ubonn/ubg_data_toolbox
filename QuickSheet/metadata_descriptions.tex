@@ -32,15 +32,26 @@ survey\_start & \faTimes & False & False &  & Starting datetime of survey. Inten
 survey\_end & \faTimes & False & False &  & Ending datetime of survey. Intended for the field data tree. Format: yyyymmdd hh:mm:ss (same as survey\_start) \\
 site & \faTimes & True & False &  & The general area of the measurement, e.g. a town name. This is further clarified in the metadata entries "area", "profile", "coordinates" \\
 area & \faTimes & True & False &  & A more localized specification of the measurement area, e.g., an identifier of a certain field or street \\
-profile & \faTimes & True & False &  & The profile that was measured on. One common naming scheme consistent of the character "p",a running number, and a signifying key word. Example: p\_01\_nor \\
-coordinates & \faCheck & False & False &  & Coordinates of representative location(s) (i.e., starting point of measurement profile). One coordinate per line The use of WGS84 coordinates is preferred (EPSG 4326). Please state the use of other coordinate systems in the metadata entry "coordinates\_desc". Coordinates should be included in decimal notation, with a least 6 decimal digits (ca. 5-12cm precision). https://wiki.openstreetmap.org/wiki/Precision\_of\_coordinates \\
+profile & \faTimes & True & False &  & The profile that was measured on. One common naming scheme consistent of the character "p",a running number, and a signifying key word. Example: p\_01\_nor.Use "complete\_area" for unspecific locations, i.e., whole-day gps measurements at one location \\
+coordinates & \faCheck & False & False &  & Coordinates of representative location(s) (i.e., starting point of measurement profile). One coordinate per line The use of WGS84 coordinates is preferred (EPSG 4326). Please state the use of other coordinate systems in the metadata entry "coordinates\_desc". Coordinates should be included in decimal notation, with a least 6 decimal digits (ca. 5-12cm precision). 
+ See https://wiki.openstreetmap.org/wiki/Precision\_of\_coordinates 
+ 
+Format: One coordinate per line. Either two or three columns, separated by the character ";".
+ The first two columns always  are: latitude and longitude.
+ An optional third column, "description" can hold identifiers, such as "start", "end", etc.
+ A header column, starting with "\#", is optional.
+ 
+
+Example: 
+\#lat;lon;description 
+50.706019097;7.210912815;start \\
 coordinates\_desc & \faCheck & False & False &  & Description of coordinates. State used representation (e.g., WGS84 or UTM) here. Do not forget the UTM zone \\
 \hline
 section: [geoelectrics]\\
 \hline
 spacing & \faTimes & False & False &  & Electrode spacing \\
 profile\_direction & \faTimes & True & False &  & Profile direction. Allowed values: normal, reciprocal \\
-electrode\_positions & \faCheck & True & False &  & Electrode positions (x,y,z) \\
+electrode\_positions & \faCheck & True & False &  & Electrode positions (x,y,z).The are the final electrode positions used for generating FE meshes. For 2D profiles, provide only (x,z) data.As the unit use meter [m].Note that somewhere in the metadata explanations on how initial coordinates (i.e. gps data) was transformed to yield these coordinates \\
 \hline
 section: [laboratory]\\
 \hline

@@ -41,6 +41,17 @@ def handle_args():
 
 
 def gen_zip(dr_tree_dir, output):
+    """Generate the actual zip file
+
+    Parameters
+    ----------
+    dr_tree_dir : str
+        The path to a data tree. This can also point to a subdirectory of the
+        tree. However, always the complete tree is archived.
+    output : str
+        The output file path. Can be relative to PWD
+
+    """
     dr_root = find_data_root(dr_tree_dir)
     assert dr_root is not None, 'cannot find dr data root, must begin with dr_'
 
@@ -49,17 +60,19 @@ def gen_zip(dr_tree_dir, output):
             output
         ))
 
+    output_abs = os.path.abspath(output)
+
     pwd = pathlib.Path(os.getcwd())
 
-    os.chdir(pathlib.Path(os.path.abspath(dr_tree_dir)).parent)
+    os.chdir(pathlib.Path(os.path.abspath(dr_root)).parent)
 
     shutil.make_archive(
-        output,
+        output_abs,
         'zip',
         os.path.basename(dr_tree_dir),
         base_dir=os.path.relpath(
             os.path.abspath(dr_root),
-            start=os.path.basename(dr_tree_dir)
+            start=os.path.basename(dr_root)
         )
     )
     os.chdir(pwd)
